@@ -1,10 +1,13 @@
 from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.options import Options
+import os
 from selenium.common.exceptions import NoSuchElementException,ElementClickInterceptedException
 import time
-LINK = "https://www.bestbuy.com/site/evga-geforce-rtx-3080-ftw3-ultra-gaming-10gb-gddr6-pci-express-4-0-graphics-card/6436196.p?skuId=6436196"
-#LINK = "https://www.bestbuy.com/site/hp-spectre-x360-2-in-1-15-6-4k-uhd-touch-screen-laptop-intel-core-i7-16gb-memory-512gb-ssd-32gb-optane-nightfall-black/6428658.p?skuId=6428658"
+#LINK = "https://www.bestbuy.com/site/evga-geforce-rtx-3080-ftw3-ultra-gaming-10gb-gddr6-pci-express-4-0-graphics-card/6436196.p?skuId=6436196"
+LINK = "https://www.bestbuy.com/site/hp-spectre-x360-2-in-1-15-6-4k-uhd-touch-screen-laptop-intel-core-i7-16gb-memory-512gb-ssd-32gb-optane-nightfall-black/6428658.p?skuId=6428658"
+#LINK = "https://www.bestbuy.com/site/sony-playstation-5-console/6426149.p?skuId=6426149"
 ID = int(LINK.split("skuId=")[1])
 FIRSTNAME = "Conner"
 LASTNAME = "Replogle"
@@ -17,8 +20,13 @@ EXPERATIONMONTH = "01"
 EXPERATIONYEAR = '2022'
 CSV = 871
 print(ID)
-driver = webdriver.Chrome("chromedriver")
+chrome_options = Options()
+#chrome_options.add_argument("--headless")
+service = webdriver.chrome.service.Service(os.path.abspath("chromedriver"))
+#service.start()
+driver = webdriver.Chrome("chromedriver",options=chrome_options)
 driver.get(LINK)
+print("at link")
 def find_element_by_xpath_Repeat(path):
     while True:
         try:
@@ -37,21 +45,16 @@ def click(element):
             pass
 
 def Buy():
-    print("here")
+    print("Buying")
     buyButton = find_element_by_xpath_Repeat(f"//button[@data-sku-id='{ID}']")
     click(buyButton)
-    print("here")
-    driver.get("https://www.bestbuy.com/cart")
-    checkoutButton = find_element_by_xpath_Repeat(f"//button[@data-track='Checkout - Top']")
-    click(checkoutButton)
+    driver.get("https://www.bestbuy.com/checkout/r/fulfillment")
+    time.sleep(2)
     try:
-        button = driver.find_element_by_xpath("//a[@class='ispu-card__switch']")
-        button.click()
-    except NoSuchElementException as e:
-        pass
-
-    CountinueAsGuestButton = find_element_by_xpath_Repeat("//button[@class='btn btn-secondary btn-lg cia-guest-content__continue guest']")
-    click(CountinueAsGuestButton)
+        change_shipping = driver.find_element_by_xpath("//a[@class='ispu-card__switch']")
+        change_shipping.click()
+    except Exception as e:
+        print(e)
     Firstname = find_element_by_xpath_Repeat("//input[@id='consolidatedAddresses.ui_address_2.firstName']")
     Firstname.send_keys(FIRSTNAME)
     LastName = find_element_by_xpath_Repeat("//input[@id='consolidatedAddresses.ui_address_2.lastName']")
