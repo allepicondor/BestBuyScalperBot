@@ -5,20 +5,20 @@ from selenium.webdriver.chrome.options import Options
 import os
 from selenium.common.exceptions import NoSuchElementException,ElementClickInterceptedException
 import time
-#LINK = "https://www.bestbuy.com/site/evga-geforce-rtx-3080-ftw3-ultra-gaming-10gb-gddr6-pci-express-4-0-graphics-card/6436196.p?skuId=6436196"
-LINK = "https://www.bestbuy.com/site/hp-spectre-x360-2-in-1-15-6-4k-uhd-touch-screen-laptop-intel-core-i7-16gb-memory-512gb-ssd-32gb-optane-nightfall-black/6428658.p?skuId=6428658"
+LINK = "https://www.bestbuy.com/site/evga-geforce-rtx-3080-ftw3-ultra-gaming-10gb-gddr6-pci-express-4-0-graphics-card/6436196.p?skuId=6436196"
+#LINK = "https://www.bestbuy.com/site/hp-spectre-x360-2-in-1-15-6-4k-uhd-touch-screen-laptop-intel-core-i7-16gb-memory-512gb-ssd-32gb-optane-nightfall-black/6428658.p?skuId=6428658"
 #LINK = "https://www.bestbuy.com/site/sony-playstation-5-console/6426149.p?skuId=6426149"
 ID = int(LINK.split("skuId=")[1])
-FIRSTNAME = "Conner"
-LASTNAME = "Replogle"
-ADDRESS = "32827 Green Bend Ct"
-CITY = 'MAGNOLIA'
-EMAIL = "connerlreplogle@gmail.com"
-PHONENUMBER = "8329042281"
-CREDITCARD_NUMBER = "4342 5801 6596 7680"
-EXPERATIONMONTH = "01"
+FIRSTNAME = ""
+LASTNAME = ""
+ADDRESS = ""
+CITY = ''
+EMAIL = ""
+PHONENUMBER = "0000000000"
+CREDITCARD_NUMBER = "0000 0000 0000 0000"
+EXPERATIONMONTH = "02"
 EXPERATIONYEAR = '2022'
-CSV = 871
+CSV = 000
 print(ID)
 chrome_options = Options()
 #chrome_options.add_argument("--headless")
@@ -27,12 +27,19 @@ service = webdriver.chrome.service.Service(os.path.abspath("chromedriver"))
 driver = webdriver.Chrome("chromedriver",options=chrome_options)
 driver.get(LINK)
 print("at link")
-def find_element_by_xpath_Repeat(path):
+def find_element_by_xpath_Repeat(path,backup=None):
     while True:
         try:
             buyButton = driver.find_element_by_xpath(path)
             return buyButton
         except NoSuchElementException as e:
+
+            if backup != None:
+                try:
+                    buyButton = driver.find_element_by_xpath(backup)
+                    return buyButton
+                except NoSuchElementException as e:
+                    pass
             #print(e)
             pass
 def click(element):
@@ -53,13 +60,14 @@ def Buy():
     try:
         change_shipping = driver.find_element_by_xpath("//a[@class='ispu-card__switch']")
         change_shipping.click()
+        time.sleep(2)
     except Exception as e:
         print(e)
-    Firstname = find_element_by_xpath_Repeat("//input[@id='consolidatedAddresses.ui_address_2.firstName']")
+    Firstname = find_element_by_xpath_Repeat("//input[@id='consolidatedAddresses.ui_address_5.firstName']","//input[@id='consolidatedAddresses.ui_address_2.firstName']")
     Firstname.send_keys(FIRSTNAME)
-    LastName = find_element_by_xpath_Repeat("//input[@id='consolidatedAddresses.ui_address_2.lastName']")
+    LastName = find_element_by_xpath_Repeat("//input[@id='consolidatedAddresses.ui_address_2.lastName']","//input[@id='consolidatedAddresses.ui_address_5.lastName']")
     LastName.send_keys(LASTNAME)
-    address = find_element_by_xpath_Repeat("//input[@id='consolidatedAddresses.ui_address_2.street']")
+    address = find_element_by_xpath_Repeat("//input[@id='consolidatedAddresses.ui_address_2.street']","//input[@id='consolidatedAddresses.ui_address_5.street']")
     address.send_keys(ADDRESS[:-1])
     autocomplete = find_element_by_xpath_Repeat("//div[@id='street-a11y-autocomplete-list-item-0']")
     autocomplete.click()
@@ -77,6 +85,7 @@ def Buy():
     csv.send_keys(CSV)
     PLACE_ORDER = driver.find_element_by_xpath("//button[@data-track='Place your Order - Contact Card']")
     PLACE_ORDER.click()
+    print("HERE")
 
 while True:
     stockStatus = driver.find_element_by_xpath(f"//button[@data-sku-id='{ID}']")
